@@ -1,0 +1,11 @@
+# Only index.html and assets/ belong in the deployment.
+# Everything below is source material that lives in this folder but must
+# not be published — these files would otherwise be publicly fetchable.
+
+*.jpg
+*.jpeg
+*.png
+!assets/**
+
+# design reference + working notes
+README.md

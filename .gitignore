@@ -1,0 +1,22 @@
+# Source material that lives in this working folder but is not part of the
+# site: one-sheets, the photo shoot, the design reference. Keeping them out
+# keeps the repo small and avoids publishing them by accident.
+*.jpg
+*.jpeg
+*.png
+
+# ...except the shipped backdrop plate.
+!assets/*.png
+!assets/*.webp
+
+# Vercel
+.vercel/
+
+# Node
+node_modules/
+npm-debug.log*
+
+# OS
+Thumbs.db
+desktop.ini
+.DS_Store

@@ -1,0 +1,1053 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+<title>Las Vegas Press Package Week — Waitlist</title>
+<meta name="description" content="One week in Vegas. Demo reel, EPK, headshots, and everything else a booker asks for before they say yes. Join the waitlist for first pick of limited slots.">
+
+<!-- ============================================================
+     OPEN GRAPH / TWITTER
+     TODO: replace og:url and og:image with real values before launch.
+     Recommended OG image: 1200x630, gold-on-black, same type lockup.
+     ============================================================ -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Las Vegas Press Package Week">
+<meta property="og:title" content="The best act rarely wins. The best package does.">
+<meta property="og:description" content="One week in Vegas. Demo reel, EPK, headshots, and everything else a booker asks for before they say yes.">
+<meta property="og:url" content="https://example.com/">
+<meta property="og:image" content="https://example.com/assets/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Las Vegas Press Package Week — gold on black title card.">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The best act rarely wins. The best package does.">
+<meta name="twitter:description" content="One week in Vegas. Demo reel, EPK, headshots, and everything a booker asks for before they say yes.">
+<meta name="twitter:image" content="https://example.com/assets/og-image.jpg">
+
+<meta name="theme-color" content="#0A0708">
+
+<!-- ============================================================
+     FONTS
+     Preconnect + preloaded stylesheet, display=swap.
+     Fallback stacks below are metric-ish matches (Georgia / system sans)
+     to keep the swap from shifting layout noticeably.
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,600..700&family=Inter:wght@400;500;600&family=Josefin+Sans:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,600..700&family=Inter:wght@400;500;600&family=Josefin+Sans:wght@400;600;700&display=swap">
+
+<style>
+/* ============================================================
+   TOKENS
+   ============================================================ */
+:root{
+  /* --- palette (warm only; no cool tones anywhere) --- */
+  --bg:        #0A0708;
+  --glow:      #F0D89A;
+  --gold:      #D4AF6A;
+  --gold-deep: #8C6B32;
+  --bloom:     #2E2038;
+  --fg:        #F7F4EF;
+  --muted:     #A79E94;
+  --chip:      #120E10;
+  --rose:      #C48B8B;   /* muted warm rose, validation only */
+
+  /* --- type ---
+     --font-display : geometric deco sans, carries the headline
+     --font-accent  : true Didone italic. Used ONLY for the emphasised
+                      word in the headline and the micro-line. Chosen for
+                      stroke contrast: hairline serifs against thick stems
+                      read hard against Josefin's uniform geometric
+                      strokes, where another humanist serif would mush. */
+  --font-display: "Josefin Sans", "Century Gothic", "Avenir Next", system-ui, sans-serif;
+  --font-accent: "Bodoni Moda", "Bodoni MT", Didot, Georgia, serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* --- TUNABLE: backdrop + horizon arc -----------------------
+     The backdrop plate (assets/hero-bg.png) has a gold arc baked into
+     it. Measured off the file: that arc is a circle whose diameter is
+     3.708x the image width, with its apex 25.49% of the image height
+     above the image's bottom edge.
+
+     So all three values below derive from ONE token, --bg-scale, and
+     the CSS arc stays welded to the baked one at every viewport size
+     and aspect ratio. There is never a second visible arc.
+
+       backdrop width = 100vw * --bg-scale
+       --arc-size     = 3.708 * that width
+       --arc-apex     = 0.2549 * (that width / 1.5 aspect)
+
+     Change --bg-scale to resize the plate; the arc follows.
+     Change 371/17 only if you replace hero-bg.png with a different
+     image (re-measure it first).
+
+     --bg-drop pushes the plate's bottom edge below the viewport bottom.
+     A full-width plate on a 16:10 screen puts the baked arc at ~73% from
+     the top; the reference sits at ~79%. Dropping the plate slightly
+     lands it there, and costs nothing, because the part pushed off the
+     bottom is the solid black below the arc. --arc-apex subtracts the
+     same drop, so the two arcs stay locked together.
+     ---------------------------------------------------------- */
+  --bg-scale: 1;
+  --bg-drop: 4vw;
+  --backdrop-opacity: .24;
+
+  /* --- TUNABLE: legibility scrim ---
+     A soft dark pool behind the type. On a 16:10 screen the plate's
+     poster and film strip ride up behind the form and micro-line, and
+     white text over the poster's own white lettering fails contrast.
+     This is a centre scrim, not a vignette: it darkens the middle band
+     where the copy sits and leaves the edges alone. */
+  --scrim-opacity: .72;
+  --arc-size: calc(371vw * var(--bg-scale));
+  --arc-apex: calc((17vw - var(--bg-drop)) * var(--bg-scale));
+
+  /* --- TUNABLE: bloom haze ---
+     Held back from 0.85 because hero-bg.png already carries a purple
+     haze of its own; stacking both at full strength turns to mush. */
+  --bloom-y: 62%;         /* vertical centre of the haze */
+  --bloom-radius: 70%;    /* falloff distance */
+  --bloom-opacity: 0.55;  /* master opacity of the bloom layer */
+
+  /* --- TUNABLE: star field mask ---
+     Stars fade out completely by --star-mask-end so they never land on
+     the camera, poster or film strip in the plate (whose tops sit around
+     45% down at --bg-scale: 1). */
+  --star-mask-start: 32%;
+  --star-mask-end: 50%;
+
+  /* --- motion --- */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --stagger: 0.08s;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+*,*::before,*::after{ box-sizing:border-box; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:var(--font-body);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;              /* single viewport, no scroll */
+}
+.sr-only{
+  position:absolute; width:1px; height:1px; padding:0; margin:-1px;
+  overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0;
+}
+:focus-visible{
+  outline:2px solid var(--glow);
+  outline-offset:3px;
+  border-radius:4px;
+}
+
+/* ============================================================
+   STAGE + LAYER ORDER
+   z0 bg · z1 backdrop · z2 scrim + bloom + cursor glow · z3 stars · z4 arc · z5 text
+   ============================================================ */
+.stage{
+  position:relative;
+  min-height:100svh;
+  display:grid;
+  /* minmax(0,1fr) pins the column to the viewport. Without it the auto
+     column sizes to the headline's max-content width and the whole
+     composition overflows on narrow screens. */
+  grid-template-columns:minmax(0,1fr);
+  place-items:center;
+  overflow:hidden;
+  isolation:isolate;
+}
+.layer{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+/* --- z1 : backdrop plate -------------------------------------
+   Full-bleed, bottom-anchored, at reduced opacity. Sits below the
+   stars (z3) and the arc (z4), so both read as foreground atmosphere
+   over it.
+
+   Sized by width (not `cover`) so the baked-in arc lands at a fixed
+   multiple of the viewport width, which is what lets --arc-size and
+   --arc-apex stay welded to it across every aspect ratio.
+
+   background-image fails silently if the file is absent, which is the
+   fallback we want: --bg + arc + bloom + stars, layout intact. */
+.backdrop{
+  z-index:1;
+  /* PNG first as the fallback declaration; browsers that understand
+     image-set() take the WebP (59 KB vs 1.6 MB). */
+  background-image:url("assets/hero-bg.png");
+  background-image:image-set(
+      url("assets/hero-bg.webp") type("image/webp"),
+      url("assets/hero-bg.png") type("image/png"));
+  background-size:calc(100vw * var(--bg-scale)) auto;
+  background-position:center calc(100% + var(--bg-drop) * var(--bg-scale));
+  background-repeat:no-repeat;
+  /* dissolve the plate's own top edge into --bg so there is no seam.
+     Stops are measured up from the bottom, in the same units as the
+     plate, so the fade tracks the image however it is scaled or dropped. */
+  -webkit-mask-image:linear-gradient(to top,
+      #000 0,
+      #000 calc((42vw - var(--bg-drop)) * var(--bg-scale)),
+      transparent calc((67vw - var(--bg-drop)) * var(--bg-scale)));
+  mask-image:linear-gradient(to top,
+      #000 0,
+      #000 calc((42vw - var(--bg-drop)) * var(--bg-scale)),
+      transparent calc((67vw - var(--bg-drop)) * var(--bg-scale)));
+  opacity:0;
+  animation:backdrop-in 1.8s var(--ease) .15s forwards;
+}
+
+/* --- z2 : legibility scrim (painted before .bloom, so the purple
+   still reads on top of it) ------------------------------------ */
+.scrim{
+  z-index:2;
+  background:radial-gradient(ellipse 62% 42% at 50% 47%,
+      rgba(10,7,8,var(--scrim-opacity)) 0%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .62)) 46%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .22)) 70%,
+      transparent 86%);
+  opacity:0;
+  animation:ambient-in 1.8s var(--ease) .15s forwards;
+}
+
+/* --- z2 : bloom haze ---------------------------------------- */
+.bloom{
+  z-index:2;
+  opacity:0;
+  background:
+    radial-gradient(ellipse 58% 40% at 50% var(--bloom-y),
+      rgba(46,32,56,.95) 0%,
+      rgba(46,32,56,.62) 28%,
+      rgba(46,32,56,.28) 52%,
+      rgba(46,32,56,.08) 76%,
+      transparent var(--bloom-radius)),
+    radial-gradient(ellipse 90% 55% at 50% calc(var(--bloom-y) + 8%),
+      rgba(46,32,56,.55) 0%,
+      rgba(46,32,56,.18) 45%,
+      transparent 78%),
+    radial-gradient(ellipse 48% 24% at 50% 84%,
+      rgba(140,107,50,.40) 0%,
+      rgba(140,107,50,.14) 45%,
+      transparent 72%);
+  animation:
+    ambient-in 1.8s var(--ease) .15s forwards,
+    bloom-breathe 12s ease-in-out 2s infinite;
+}
+
+/* --- z2 : cursor glow (atmosphere, not a spotlight) --------- */
+.cursor-glow{
+  position:absolute;
+  pointer-events:none;
+  z-index:2;
+  width:min(70vw,900px);
+  aspect-ratio:1;
+  inset:auto auto auto auto;
+  top:0; left:0;
+  margin:calc(min(70vw,900px) / -2) 0 0 calc(min(70vw,900px) / -2);
+  background:radial-gradient(circle,
+      rgba(212,175,106,.10) 0%,
+      rgba(140,107,50,.055) 32%,
+      transparent 68%);
+  opacity:0;
+  transition:opacity .8s ease;
+  will-change:transform;
+}
+.cursor-glow.is-live{ opacity:1; }
+
+/* --- z3 : star field ---------------------------------------- */
+.stars{
+  z-index:3;
+  -webkit-mask-image:linear-gradient(to bottom,
+      #000 0%, #000 var(--star-mask-start), transparent var(--star-mask-end));
+  mask-image:linear-gradient(to bottom,
+      #000 0%, #000 var(--star-mask-start), transparent var(--star-mask-end));
+}
+@property --boost{ syntax:"<number>"; inherits:false; initial-value:1; }
+.star{
+  position:absolute;
+  width:var(--size);
+  height:var(--size);
+  border-radius:50%;
+  background:var(--glow);
+  opacity:0;
+  --boost:1;
+  transition:--boost .45s ease;
+}
+.star.is-in{
+  animation:twinkle var(--dur) ease-in-out var(--delay) infinite alternate;
+}
+
+/* --- z4 : horizon arc ---------------------------------------
+   A single very large circle. Its fill is --bg, so it doubles as the
+   occluder that turns everything below the curve to darkness — which is
+   what the reference does. The hairline + bloom live on ::before so a
+   horizontal mask can dim them toward both edges. */
+.arc{
+  z-index:4;
+  inset:auto auto calc(var(--arc-apex) - var(--arc-size)) 50%;
+  width:var(--arc-size);
+  height:var(--arc-size);
+  border-radius:50%;
+  background:var(--bg);
+  transform:translateX(-50%);
+  opacity:0;
+  animation:ambient-in 1.8s var(--ease) .15s forwards;
+}
+.arc::before{
+  content:"";
+  position:absolute;
+  inset:-1px;
+  border-radius:50%;
+  border:1px solid var(--glow);
+  box-shadow:
+    0 0 6px rgba(240,216,154,.80),
+    0 0 20px rgba(240,216,154,.52),
+    0 0 58px rgba(240,216,154,.26),
+    0 0 150px rgba(46,32,56,.60);
+  /* Brightest at centre, dimming toward both edges.
+     Stops are in vw, not %, because % here is relative to the circle's
+     own diameter (several thousand px) — the whole viewport would sit
+     inside one opaque stop and show no falloff at all. vw keeps the
+     falloff in viewport space and independent of --arc-size. */
+  -webkit-mask-image:linear-gradient(to right,
+      transparent calc(50% - 62vw),
+      rgba(0,0,0,.35) calc(50% - 36vw),
+      #000 calc(50% - 9vw),
+      #000 calc(50% + 9vw),
+      rgba(0,0,0,.35) calc(50% + 36vw),
+      transparent calc(50% + 62vw));
+  mask-image:linear-gradient(to right,
+      transparent calc(50% - 62vw),
+      rgba(0,0,0,.35) calc(50% - 36vw),
+      #000 calc(50% - 9vw),
+      #000 calc(50% + 9vw),
+      rgba(0,0,0,.35) calc(50% + 36vw),
+      transparent calc(50% + 62vw));
+  animation:arc-drift 17s ease-in-out 2.4s infinite;
+}
+
+/* ============================================================
+   CONTENT (z5)
+   Centred column, nudged above optical centre.
+   ============================================================ */
+.content{
+  position:relative;
+  z-index:5;
+  width:min(900px, calc(100% - 3rem));
+  margin-bottom:14vh;
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+}
+
+/* --- badge --- */
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:.6em;
+  padding:.72em 1.9em;
+  border:1px solid var(--gold);
+  border-radius:999px;
+  background:transparent;
+  color:var(--gold);
+  font-size:.75rem;
+  font-weight:600;
+  letter-spacing:.18em;
+  text-transform:uppercase;
+  position:relative;
+  transition:border-color .35s ease;
+}
+/* glowing endpoints, left and right */
+.badge::before,
+.badge::after{
+  content:"";
+  position:absolute;
+  top:50%;
+  width:6px; height:6px;
+  border-radius:50%;
+  background:var(--glow);
+  transform:translateY(-50%);
+  box-shadow:0 0 10px 2px rgba(240,216,154,.75), 0 0 22px 6px rgba(240,216,154,.35);
+  transition:box-shadow .35s ease, opacity .35s ease;
+  opacity:.9;
+}
+.badge::before{ left:-3px; }
+.badge::after{ right:-3px; }
+
+/* --- headline --- */
+.headline{
+  margin:1.5rem 0 0;
+  font-family:var(--font-display);
+  font-weight:700;
+  /* Sized so each line stays on ONE line inside the 900px column, which is
+     what the reference does. See README.
+     Josefin Sans reads smaller than a Didone at the same size (low
+     x-height) but sets noticeably WIDER — about 0.467em per character
+     against Playfair's 0.428em. Width is the binding constraint here, so
+     the ceiling came down, not up. Measured: 11.68em for the longer line,
+     which is what pins the 4.75rem cap inside the 900px column. */
+  font-size:clamp(1.75rem, 5.2vw, 4.75rem);
+  /* Geometric sans at display size wants near-neutral tracking. The -.02em
+     that suited the Didone crushes Josefin's round bowls together. */
+  letter-spacing:-.005em;
+  line-height:1.05;
+  /* descender clearance: "package" carries p + g, and Bodoni italic
+     descenders are long, against 1.05 leading */
+  padding-bottom:.12em;
+}
+.headline .l1,
+.headline .l2{ display:block; }
+.headline .l1{ color:var(--fg); }
+.headline .l2{
+  color:var(--gold);
+  position:relative;
+  /* Bodoni Moda italic descenders (p, g in "package") run long. This
+     reserve keeps them clear of the underlight below. */
+  padding-bottom:.16em;
+}
+/* The emphasised word. Bodoni Moda's x-height is far larger than Josefin's,
+   so at a shared font-size it would read oversized — hence the 0.9em. Its
+   italic also needs its own tracking; Didone italics set loose. */
+.headline em{
+  font-family:var(--font-accent);
+  font-style:italic;
+  font-weight:700;
+  font-size:.9em;
+  letter-spacing:.005em;
+  /* optical: Bodoni sits slightly high against Josefin's low x-height */
+  vertical-align:-.012em;
+}
+/* the soft gold underlight beneath line 2, as in the reference */
+.headline .l2::after{
+  content:"";
+  position:absolute;
+  left:50%; bottom:.05em;
+  width:32%; height:1px;
+  transform:translateX(-50%);
+  background:linear-gradient(to right, transparent, var(--glow), transparent);
+  opacity:.55;
+  box-shadow:0 0 12px 1px rgba(240,216,154,.45);
+}
+
+/* --- subhead --- */
+.subhead{
+  margin:1.35rem 0 0;
+  max-width:48ch;
+  color:var(--muted);
+  font-size:clamp(1rem, 1.5vw, 1.25rem);
+  line-height:1.5;
+}
+
+/* --- form --- */
+.signup{
+  margin:2.1rem 0 0;
+  width:min(640px, 100%);
+}
+/* honeypot — off-screen rather than display:none, which some bots skip */
+.hp{
+  position:absolute;
+  left:-9999px;
+  width:1px;
+  height:1px;
+  overflow:hidden;
+}
+.field{
+  position:relative;
+  display:flex;
+  align-items:stretch;
+  gap:0;
+  padding:6px;
+  background:var(--chip);
+  border:1px solid var(--gold-deep);
+  border-radius:14px;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.6), inset 0 0 0 1px rgba(255,255,255,.015);
+  transition:border-color .25s ease, box-shadow .25s ease;
+  min-height:62px;
+}
+.field:focus-within{
+  border-color:var(--gold);
+  box-shadow:
+    inset 0 1px 3px rgba(0,0,0,.6),
+    0 0 0 1px rgba(212,175,106,.35),
+    0 0 22px rgba(212,175,106,.18);
+}
+.field.has-error{ border-color:var(--rose); }
+.field.has-error:focus-within{
+  border-color:var(--rose);
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.6), 0 0 0 1px rgba(196,139,139,.35);
+}
+
+.field input{
+  flex:1 1 auto;
+  min-width:0;
+  padding:0 1.1rem;
+  border:0;
+  background:transparent;
+  color:var(--fg);
+  font-family:var(--font-body);
+  font-size:1rem;
+  line-height:1;
+}
+.field input::placeholder{ color:var(--muted); opacity:1; }
+.field input:focus{ outline:none; }
+
+.field button{
+  flex:0 0 auto;
+  padding:0 1.6rem;
+  border:0;
+  border-radius:9px;
+  background:var(--gold);
+  color:var(--bg);
+  font-family:var(--font-body);
+  font-size:.95rem;
+  font-weight:600;
+  cursor:pointer;
+  white-space:nowrap;
+  transition:transform .3s var(--ease), box-shadow .3s ease, background-color .3s ease;
+}
+@media (hover:hover) and (pointer:fine){
+  .field button:hover{
+    transform:scale(1.02);
+    background:var(--glow);
+    box-shadow:0 0 0 1px rgba(240,216,154,.6), 0 0 24px rgba(240,216,154,.32);
+  }
+}
+.field button:active{ transform:scale(.985); }
+.field button[disabled]{ opacity:.6; cursor:default; transform:none; }
+
+/* success state — cross-fades inside the same container, same height.
+   The input and button keep their box (opacity only, never display:none)
+   so the container height is identical before and after. */
+.field .success{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:.15rem;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .45s ease, visibility 0s linear .45s;
+  padding:0 1rem;
+}
+.field .success p{ margin:0; }
+.field .success .s1{
+  color:var(--fg);
+  font-size:1rem;
+  font-weight:500;
+}
+.field .success .s2{
+  color:var(--muted);
+  font-size:.8rem;
+}
+.field.is-done .success{
+  opacity:1;
+  visibility:visible;
+  transition:opacity .45s ease .1s, visibility 0s;
+}
+.field.is-done input,
+.field.is-done button{
+  opacity:0;
+  pointer-events:none;
+  transition:opacity .35s ease;
+}
+
+.error{
+  margin:.65rem 0 0;
+  min-height:1.1em;
+  font-size:.8rem;
+  color:var(--muted);
+  opacity:0;
+  transition:opacity .3s ease;
+}
+.error.is-shown{ opacity:1; }
+
+/* --- micro-line, flanked by gold rules --- */
+.micro{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:1rem;
+  margin:1.35rem 0 0;
+  width:100%;
+  max-width:520px;
+}
+.micro span{
+  /* stays a Didone italic, as in the reference — the headline changing to a
+     geometric sans shouldn't drag this along with it */
+  font-family:var(--font-accent);
+  font-style:italic;
+  font-size:.9rem;
+  color:var(--fg);
+  opacity:.8;
+  white-space:nowrap;
+}
+.micro i{
+  flex:1 1 auto;
+  height:1px;
+  max-width:88px;
+  background:linear-gradient(to right, transparent, var(--gold-deep));
+}
+.micro i:last-child{
+  background:linear-gradient(to left, transparent, var(--gold-deep));
+}
+
+/* ============================================================
+   ENTRANCE — CSS only, so it still runs if JS fails.
+   Whole elements, fade + 12px rise. No splitting, no masks.
+   ============================================================ */
+.rise{
+  opacity:0;
+  animation:rise .6s var(--ease) forwards;
+}
+.rise-1{ animation-delay:calc(var(--stagger) * 0); }
+.rise-2{ animation-delay:calc(var(--stagger) * 1); }
+.rise-3{ animation-delay:calc(var(--stagger) * 2); }
+.rise-4{ animation-delay:calc(var(--stagger) * 3); }
+.rise-5{ animation-delay:calc(var(--stagger) * 4); }
+.rise-6{ animation-delay:calc(var(--stagger) * 5); }
+
+@keyframes rise{
+  from{ opacity:0; transform:translate3d(0,12px,0); }
+  to  { opacity:1; transform:translate3d(0,0,0); }
+}
+@keyframes ambient-in{
+  from{ opacity:0; }
+  to  { opacity:1; }
+}
+@keyframes backdrop-in{
+  from{ opacity:0; }
+  to  { opacity:var(--backdrop-opacity); }
+}
+@keyframes bloom-breathe{
+  0%,100%{ opacity:var(--bloom-opacity); transform:scale(1); }
+  50%    { opacity:calc(var(--bloom-opacity) * .93); transform:scale(1.035); }
+}
+@keyframes arc-drift{
+  0%,100%{ opacity:.92; }
+  50%    { opacity:1; }
+}
+@keyframes twinkle{
+  from{ opacity:calc(var(--o) * var(--boost) * .45); }
+  to  { opacity:calc(var(--o) * var(--boost)); }
+}
+
+/* ============================================================
+   MOBILE
+   ============================================================ */
+@media (max-width:640px){
+  /* Scale the plate up on narrow screens, or the camera, poster and film
+     strip render only a couple of hundred pixels tall and turn to mush.
+     --arc-size and --arc-apex follow --bg-scale automatically, so the arc
+     stays welded to the plate. */
+  :root{ --bg-scale:1.9; --star-mask-end:44%; --backdrop-opacity:.28; }
+  .content{ margin-bottom:8vh; width:calc(100% - 2.5rem); }
+  .badge{ font-size:.66rem; padding:.65em 1.4em; letter-spacing:.15em; }
+  .headline{ margin-top:1.2rem; }
+  .subhead{ margin-top:1.1rem; }
+
+  /* stack: full-width input above full-width button, 8px gap */
+  .field{
+    flex-direction:column;
+    gap:8px;
+    padding:8px;
+    min-height:0;
+  }
+  .field input{
+    width:100%;
+    padding:.95rem 1rem;
+    text-align:center;
+  }
+  .field button{
+    width:100%;
+    padding:.95rem 1rem;
+  }
+  /* success stays absolutely positioned here too, so the stacked form's
+     height is preserved and nothing shifts underneath it */
+  .field .success{ padding:.9rem 1rem; }
+  .micro{ gap:.7rem; }
+  .micro span{ font-size:.82rem; white-space:normal; }
+}
+
+/* short viewports: keep everything inside one screen */
+@media (max-height:680px){
+  .content{ margin-bottom:4vh; }
+  .headline{ font-size:clamp(1.9rem, 5.2vh, 4rem); }
+  .signup{ margin-top:1.5rem; }
+  .micro{ margin-top:1rem; }
+}
+
+/* ============================================================
+   REDUCED MOTION
+   One 0.3s opacity fade. No stagger, no drift, no twinkle,
+   no cursor effects. Fully usable.
+   ============================================================ */
+@media (prefers-reduced-motion:reduce){
+  .rise,
+  .scrim, .bloom, .arc{
+    animation:ambient-in .3s ease forwards !important;
+    animation-delay:0s !important;
+  }
+  .backdrop{
+    animation:backdrop-in .3s ease forwards !important;
+    animation-delay:0s !important;
+  }
+  .arc::before{ animation:none !important; opacity:1; }
+  .bloom{ opacity:var(--bloom-opacity); }
+  .star{ animation:none !important; opacity:var(--o); transition:none; }
+  .cursor-glow{ display:none; }
+  .field button{ transition:none; }
+  .field button:hover{ transform:none; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="stage">
+
+  <!-- z1 · backdrop plate at reduced opacity (silently absent if missing) -->
+  <div class="layer backdrop" aria-hidden="true"></div>
+
+  <!-- z2 · legibility scrim, then bloom haze -->
+  <div class="layer scrim" aria-hidden="true"></div>
+  <div class="layer bloom" aria-hidden="true"></div>
+
+  <!-- z2 · cursor glow -->
+  <div class="cursor-glow" id="cursorGlow" aria-hidden="true"></div>
+
+  <!-- z3 · star field (populated by JS, seeded so it is identical every load) -->
+  <div class="layer stars" id="stars" aria-hidden="true"></div>
+
+  <!-- z4 · horizon arc -->
+  <div class="layer arc" aria-hidden="true"></div>
+
+  <!-- z5 · content -->
+  <main class="content">
+
+    <p class="badge rise rise-1">Las Vegas &middot; Press Package Week</p>
+
+    <!-- The two lines stagger independently. The rise animation lives on the
+         spans so the parallax transform on the <h1> never fights it. -->
+    <h1 class="headline" id="headline">
+      <span class="l1 rise rise-2">The best act rarely wins.</span>
+      <span class="l2 rise rise-3">The best <em>package</em> does.</span>
+    </h1>
+
+    <p class="subhead rise rise-4">
+      One week in Vegas. Demo reel, EPK, headshots, and everything else a booker asks for before they say yes.
+    </p>
+
+    <!-- Posts to our own serverless function, which forwards to the GoHighLevel
+         inbound webhook server-side. action= is also the no-JS fallback target;
+         FORM_ENDPOINT in the script overrides it only if set. -->
+    <form class="signup rise rise-5"
+          id="signup"
+          method="post"
+          action="/api/subscribe"
+          novalidate>
+      <label class="sr-only" for="email">Email address</label>
+
+      <!-- Honeypot. Hidden from sight, from the tab order and from screen
+           readers; only a bot fills it. The inbound webhook is billed per
+           event, so junk that gets through costs real money. -->
+      <div class="hp" aria-hidden="true">
+        <label for="company">Company</label>
+        <input type="text" id="company" name="company" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="field" id="field">
+        <input id="email"
+               name="email"
+               type="email"
+               placeholder="Your email address"
+               autocomplete="email"
+               required
+               aria-describedby="formError">
+        <button type="submit" id="submit">Get On The List</button>
+        <div class="success" id="success" role="status" tabindex="-1" aria-hidden="true">
+          <p class="s1">You&rsquo;re on the list.</p>
+          <p class="s2">Dates and early pricing hit your inbox first.</p>
+        </div>
+      </div>
+      <p class="error" id="formError" role="alert" aria-live="polite"></p>
+    </form>
+
+    <p class="micro rise rise-6">
+      <i aria-hidden="true"></i>
+      <span>Limited slots. Waitlist gets first pick.</span>
+      <i aria-hidden="true"></i>
+    </p>
+
+  </main>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ==========================================================
+     TUNABLE CONSTANTS
+     ========================================================== */
+
+  // Leave empty to POST to the form's action attribute (keeps the
+  // no-JS fallback and the JS path pointing at one place).
+  const FORM_ENDPOINT   = "";
+
+  const STAR_COUNT      = 52;    // desktop star count
+  const STAR_COUNT_SM   = 30;    // mobile star count
+  const STAR_SEED       = 20260919;
+  const STAR_FIELD_TOP  = 0.04;  // top of the generated field (fraction of viewport)
+  const STAR_FIELD_BOT  = 0.56;  // bottom — the CSS mask fades them out before this
+  const STAR_Y_BIAS     = 1.45;  // >1 packs stars toward the upper-middle
+  const STAR_MIN_OP     = 0.15;
+  const STAR_MAX_OP     = 0.50;
+  const STAR_TWINKLE_MIN= 4.0;   // seconds
+  const STAR_TWINKLE_MAX= 9.0;   // seconds
+  const STAR_NEAR_PX    = 120;   // cursor proximity radius
+  const STAR_NEAR_BOOST = 1.9;   // brightness multiplier within that radius
+
+  const CURSOR_LERP     = 0.06;  // heavier = slower, more atmospheric
+  const PARALLAX_MAX    = 4;     // px, headline only
+
+  /* ==========================================================
+     ENVIRONMENT
+     ========================================================== */
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const finePointer  = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+  const isSmall      = window.matchMedia("(max-width: 640px)").matches;
+  const wantsPointerFX = finePointer && !isSmall && !reduceMotion;
+
+  /* ==========================================================
+     SEEDED RANDOM (mulberry32) — identical field on every load
+     ========================================================== */
+  function mulberry32(a){
+    return function(){
+      a |= 0; a = a + 0x6D2B79F5 | 0;
+      let t = Math.imul(a ^ a >>> 15, 1 | a);
+      t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+      return ((t ^ t >>> 14) >>> 0) / 4294967296;
+    };
+  }
+
+  /* ==========================================================
+     STAR FIELD
+     Denser in the upper-middle behind the headline, sparse at the
+     corners. Masked in CSS so nothing lands on the photo below.
+     ========================================================== */
+  const starLayer = document.getElementById("stars");
+  const stars = [];
+
+  function buildStars(){
+    const rand  = mulberry32(STAR_SEED);
+    const count = isSmall ? STAR_COUNT_SM : STAR_COUNT;
+    const frag  = document.createDocumentFragment();
+
+    for(let i = 0; i < count; i++){
+      // y: biased toward the top of the field
+      const y = STAR_FIELD_TOP +
+                Math.pow(rand(), STAR_Y_BIAS) * (STAR_FIELD_BOT - STAR_FIELD_TOP);
+
+      // x: triangular distribution (centre-weighted), slightly re-spread
+      // so the corners stay sparse without being empty
+      const tri = (rand() + rand()) / 2;
+      const x   = tri * 0.82 + rand() * 0.18;
+
+      const el = document.createElement("span");
+      el.className = "star";
+      el.style.left = (x * 100).toFixed(3) + "%";
+      el.style.top  = (y * 100).toFixed(3) + "%";
+      el.style.setProperty("--size", (rand() < 0.68 ? 1 : 2) + "px");
+      el.style.setProperty("--o",
+        (STAR_MIN_OP + rand() * (STAR_MAX_OP - STAR_MIN_OP)).toFixed(3));
+      el.style.setProperty("--dur",
+        (STAR_TWINKLE_MIN + rand() * (STAR_TWINKLE_MAX - STAR_TWINKLE_MIN)).toFixed(2) + "s");
+      el.style.setProperty("--delay", (rand() * -9).toFixed(2) + "s");
+
+      frag.appendChild(el);
+      stars.push({ el:el, fx:x, fy:y, near:false });
+    }
+    starLayer.appendChild(frag);
+
+    // Stars fade in last, randomised per star.
+    if(reduceMotion){
+      stars.forEach(function(s){ s.el.style.opacity = s.el.style.getPropertyValue("--o"); });
+    } else {
+      const rand2 = mulberry32(STAR_SEED + 7);
+      stars.forEach(function(s){
+        const delay = 600 + rand2() * 600;   // 0.6s–1.2s
+        s.el.style.transition = "opacity 1.2s ease " + Math.round(delay) + "ms, --boost .45s ease";
+        requestAnimationFrame(function(){
+          s.el.style.opacity = s.el.style.getPropertyValue("--o");
+          setTimeout(function(){
+            s.el.style.transition = "--boost .45s ease";
+            s.el.style.opacity = "";
+            s.el.classList.add("is-in");
+          }, delay + 1200);
+        });
+      });
+    }
+  }
+  buildStars();
+
+  /* ==========================================================
+     POINTER: cursor glow (heavy lerp), star brightening, parallax
+     All mousemove work is throttled through requestAnimationFrame.
+     ========================================================== */
+  if(wantsPointerFX){
+    const glow     = document.getElementById("cursorGlow");
+    const headline = document.getElementById("headline");
+
+    let targetX = window.innerWidth / 2, targetY = window.innerHeight / 2;
+    let curX = targetX, curY = targetY;
+    let vw = window.innerWidth, vh = window.innerHeight;
+    let running = false, queued = false;
+
+    window.addEventListener("resize", function(){
+      vw = window.innerWidth; vh = window.innerHeight;
+    }, { passive:true });
+
+    window.addEventListener("pointermove", function(e){
+      if(e.pointerType !== "mouse") return;
+      targetX = e.clientX; targetY = e.clientY;
+      glow.classList.add("is-live");
+      if(!running){ running = true; requestAnimationFrame(tick); }
+      queued = true;
+    }, { passive:true });
+
+    function tick(){
+      curX += (targetX - curX) * CURSOR_LERP;
+      curY += (targetY - curY) * CURSOR_LERP;
+
+      glow.style.transform = "translate3d(" + curX.toFixed(1) + "px," + curY.toFixed(1) + "px,0)";
+
+      // headline parallax — max 4px, heavily eased
+      const nx = (curX / vw - 0.5) * 2;
+      const ny = (curY / vh - 0.5) * 2;
+      headline.style.transform =
+        "translate3d(" + (nx * PARALLAX_MAX).toFixed(2) + "px," +
+                         (ny * PARALLAX_MAX * 0.6).toFixed(2) + "px,0)";
+
+      // star proximity — only write when a star's state actually flips
+      for(let i = 0; i < stars.length; i++){
+        const s  = stars[i];
+        const dx = s.fx * vw - targetX;
+        const dy = s.fy * vh - targetY;
+        const near = (dx*dx + dy*dy) < (STAR_NEAR_PX * STAR_NEAR_PX);
+        if(near !== s.near){
+          s.near = near;
+          s.el.style.setProperty("--boost", near ? STAR_NEAR_BOOST : 1);
+        }
+      }
+
+      // keep animating until the glow has settled, then idle
+      const settled = Math.abs(targetX - curX) < 0.3 && Math.abs(targetY - curY) < 0.3;
+      if(settled && !queued){ running = false; return; }
+      queued = false;
+      requestAnimationFrame(tick);
+    }
+  }
+
+  /* ==========================================================
+     FORM
+     ========================================================== */
+  const form    = document.getElementById("signup");
+  const field   = document.getElementById("field");
+  const input   = document.getElementById("email");
+  const button  = document.getElementById("submit");
+  const errorEl = document.getElementById("formError");
+
+  const endpoint = FORM_ENDPOINT || form.getAttribute("action");
+  const BUTTON_LABEL = button.textContent;
+
+  function showError(msg){
+    errorEl.textContent = msg;
+    errorEl.classList.add("is-shown");
+    field.classList.add("has-error");
+  }
+  function clearError(){
+    errorEl.classList.remove("is-shown");
+    field.classList.remove("has-error");
+    // leave the text in place until the fade finishes
+    setTimeout(function(){
+      if(!errorEl.classList.contains("is-shown")) errorEl.textContent = "";
+    }, 300);
+  }
+
+  // A deliberately permissive check — server-side validation is the real gate.
+  function validEmail(v){
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.trim());
+  }
+
+  input.addEventListener("input", function(){
+    if(field.classList.contains("has-error")) clearError();
+  });
+
+  form.addEventListener("submit", function(e){
+    e.preventDefault();
+
+    const value = input.value.trim();
+    if(!value){            showError("Please enter your email address."); input.focus(); return; }
+    if(!validEmail(value)){ showError("That email address doesn't look right."); input.focus(); return; }
+
+    clearError();
+    button.disabled = true;
+    button.textContent = "Sending…";
+
+    const hp = document.getElementById("company");
+
+    fetch(endpoint, {
+      method: "POST",
+      headers: { "Accept": "application/json", "Content-Type": "application/json" },
+      body: JSON.stringify({ email: value, company: hp ? hp.value : "" })
+    })
+    .then(function(res){
+      if(!res.ok){
+        // surface the server's own wording when it sent some
+        return res.json().catch(function(){ return {}; }).then(function(data){
+          throw new Error(data.error || "Bad response " + res.status);
+        });
+      }
+      // cross-fade the field contents to the success copy, same height
+      const successEl = document.getElementById("success");
+      field.classList.add("is-done");
+      successEl.setAttribute("aria-hidden", "false");
+      input.setAttribute("tabindex", "-1");
+      button.setAttribute("tabindex", "-1");
+      input.setAttribute("readonly", "readonly");
+      // move focus so the confirmation is announced and the tab order is sane
+      successEl.focus();
+    })
+    .catch(function(err){
+      button.disabled = false;
+      button.textContent = "Try Again";
+      showError((err && err.message && err.message.indexOf("Bad response") === -1)
+        ? err.message
+        : "That didn't go through. Check your connection and try again.");
+    });
+  });
+
+  // Opening index.html straight off disk has no /api route, so make the
+  // reason obvious rather than letting it look like a code fault.
+  if(location.protocol === "file:"){
+    console.warn("[Press Package Week] Running from file:// — /api/subscribe " +
+                 "does not exist here. Use `npx vercel dev` to test the form.");
+  }
+})();
+</script>
+
+</body>
+</html>
