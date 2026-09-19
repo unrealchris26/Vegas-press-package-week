@@ -9,6 +9,13 @@
 !assets/*.png
 !assets/*.webp
 
+# Local env. Holds the GHL webhook URL, which is a bearer credential --
+# anyone with it can write contacts into the CRM and spend premium-trigger
+# budget. Never commit these.
+.env
+.env.*
+!.env.example
+
 # Vercel
 .vercel/
 
