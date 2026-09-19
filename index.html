@@ -1165,5 +1165,25 @@ body{
 })();
 </script>
 
+<!-- ============================================================
+     VERCEL WEB ANALYTICS
+     Script-tag install, which is the documented path for plain HTML.
+     The @vercel/analytics npm package is deliberately NOT installed: it
+     is an ESM module intended for a bundler, and this site has no build
+     step, so nothing would ever pull it into the page. Adding a
+     package.json for it can also make Vercel start running install and
+     build steps this project currently skips.
+
+     Requires Web Analytics to be enabled on the project first
+     (Vercel dashboard > Analytics > Enable). Until then the script 404s
+     harmlessly and the page is unaffected.
+
+     Cookieless and no fingerprinting, so it needs no consent banner.
+     ============================================================ -->
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+
 </body>
 </html>

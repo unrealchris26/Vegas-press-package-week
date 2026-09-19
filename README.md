@@ -165,6 +165,48 @@ If you re-export the plate, redo the conversion:
 python -c "from PIL import Image; Image.open('assets/hero-bg.png').convert('RGB').save('assets/hero-bg.webp','WEBP',quality=86,method=6)"
 ```
 
+## Analytics
+
+Vercel Web Analytics is wired in via **script tag**, at the bottom of
+`index.html`:
+
+```html
+<script>
+  window.va = window.va || function () { (window.vaq = window.vaq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/insights/script.js"></script>
+```
+
+**`@vercel/analytics` is deliberately not installed.** Vercel's own docs say so
+for plain HTML: *"When using the HTML implementation, there is no need to install
+the `@vercel/analytics` package."* It's an ESM module meant for a bundler, and
+this site has no build step, so nothing would ever pull it into the page. Adding
+a `package.json` for it also risks Vercel treating this as a Node project and
+running install/build steps it currently skips.
+
+**You must enable it in the dashboard** — Vercel → your project → Analytics →
+**Enable**. That's what creates the `/_vercel/insights/*` routes. Until then the
+script 404s harmlessly; the page is unaffected, and it 404s locally too since
+those routes only exist on a Vercel deployment.
+
+To confirm it's live, load the deployed page and look for a `/_vercel/insights/view`
+request in the Network tab.
+
+Two caveats:
+
+- **No route support.** The HTML implementation doesn't track client-side route
+  changes. Irrelevant here — it's a single page with no navigation.
+- **Ad blockers.** Enabling Analytics also provisions a project-specific path
+  alongside `/_vercel/insights/*`. Substituting that unique path into the `src`
+  gets past blockers that recognise the well-known one. The dashboard shows it
+  when you enable the feature.
+
+It's cookieless and does no fingerprinting, so it needs no consent banner.
+
+If you later want Core Web Vitals from real visitors — worth it given the LCP
+budget this page was built to — Speed Insights installs the same way and is a
+separate toggle.
+
 ## Typography
 
 Three families, loaded in one Google Fonts request.
