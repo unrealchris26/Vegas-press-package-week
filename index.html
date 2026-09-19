@@ -37,6 +37,54 @@
      ============================================================ -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+<!-- Start the backdrop fetch at parse time. Without this the browser only
+     discovers it once the CSS has been parsed and the layer painted, which
+     is what let the CSS-only bloom appear before the plate. -->
+<link rel="preload" as="image" href="assets/hero-bg.webp" type="image/webp" fetchpriority="high">
+
+<!-- AMBIENT GATE. Must live in <head> and BEFORE the stylesheet link below:
+     a <link rel="stylesheet"> blocks execution of every script after it, so
+     running this at the end of <body> made the whole atmosphere wait on
+     Google Fonts — measured at 3s on a throttled connection.
+
+     .js is set before first paint, so the ambient layers can start hidden
+     without trapping no-JS visitors on a black screen: the CSS default is
+     "visible", and only this class opts into the gated fade.
+
+     .ambient-ready then releases the fade once the backdrop plate has
+     decoded, so the bloom, scrim and arc arrive WITH the image rather than
+     flashing over flat black while it is still in flight. -->
+<script>
+(function(){
+  var root = document.documentElement;
+  root.className += " js";
+
+  var done = false;
+  function go(){
+    if(done) return;
+    done = true;
+    root.classList.add("ambient-ready");
+  }
+
+  var plate = new Image();
+  plate.src = "assets/hero-bg.webp";
+
+  // decode() resolves when the bitmap is ready to paint; onload can fire
+  // while decoding still costs a frame.
+  if(plate.decode){
+    plate.decode().then(go, go);
+  } else {
+    plate.onload = go;
+    plate.onerror = go;
+    if(plate.complete) go();
+  }
+
+  // Hard cap. A slow network, a 404, or a browser without WebP must never
+  // leave the page sitting black.
+  setTimeout(go, 1200);
+})();
+</script>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,600..700&family=Inter:wght@400;500;600&family=Josefin+Sans:wght@400;600;700&display=swap">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@1,6..96,600..700&family=Inter:wght@400;500;600&family=Josefin+Sans:wght@400;600;700&display=swap">
 
@@ -110,7 +158,7 @@
      Held back from 0.85 because hero-bg.png already carries a purple
      haze of its own; stacking both at full strength turns to mush. */
   --bloom-y: 62%;         /* vertical centre of the haze */
-  --bloom-radius: 70%;    /* falloff distance */
+  --bloom-radius: 100%;   /* outer edge of the core falloff; inner stops derive from it */
   --bloom-opacity: 0.55;  /* master opacity of the bloom layer */
 
   /* --- TUNABLE: star field mask ---
@@ -184,6 +232,7 @@ body{
    fallback we want: --bg + arc + bloom + stars, layout intact. */
 .backdrop{
   z-index:1;
+  opacity:var(--backdrop-opacity);   /* no-JS default; .js starts it at 0 */
   /* PNG first as the fallback declaration; browsers that understand
      image-set() take the WebP (59 KB vs 1.6 MB). */
   background-image:url("assets/hero-bg.png");
@@ -204,45 +253,100 @@ body{
       #000 0,
       #000 calc((42vw - var(--bg-drop)) * var(--bg-scale)),
       transparent calc((67vw - var(--bg-drop)) * var(--bg-scale)));
-  opacity:0;
-  animation:backdrop-in 1.8s var(--ease) .15s forwards;
 }
 
 /* --- z2 : legibility scrim (painted before .bloom, so the purple
    still reads on top of it) ------------------------------------ */
 .scrim{
   z-index:2;
-  background:radial-gradient(ellipse 62% 42% at 50% 47%,
+  background:radial-gradient(ellipse 72% 52% at 50% 47%,
       rgba(10,7,8,var(--scrim-opacity)) 0%,
-      rgba(10,7,8,calc(var(--scrim-opacity) * .62)) 46%,
-      rgba(10,7,8,calc(var(--scrim-opacity) * .22)) 70%,
-      transparent 86%);
-  opacity:0;
-  animation:ambient-in 1.8s var(--ease) .15s forwards;
+      rgba(10,7,8,calc(var(--scrim-opacity) * .75)) 12.5%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .53)) 25%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .35)) 37.5%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .22)) 50%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .12)) 62.5%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .045)) 75%,
+      rgba(10,7,8,calc(var(--scrim-opacity) * .01)) 87.5%,
+      rgba(10,7,8,0) 100%);
 }
 
-/* --- z2 : bloom haze ---------------------------------------- */
+/* --- z2 : bloom haze ----------------------------------------
+   Three things keep this from reading as a disc:
+
+   1. Every falloff ends at a ZERO-ALPHA STOP OF ITS OWN HUE, never at
+      `transparent`. `transparent` is rgba(0,0,0,0) — interpolating toward
+      it drags the ramp through darker, desaturated values and rings the
+      edge. This is also where the old hard edge came from: the final stop
+      sat at 70% while the one before it was at 76%, and CSS clamps an
+      out-of-order stop to its predecessor, collapsing .08 -> 0 into no
+      distance at all.
+   2. Nine stops on an eased curve (alpha ~ (1-t)^2.2) rather than four on a
+      straight ramp. Banding is visible where a linear ramp crosses an
+      8-bit boundary over many pixels; spreading the same alpha range over
+      a curve with more anchors shortens every flat run.
+   3. Wider ellipses, lower peaks, more overlap. A big soft field reads as
+      haze; a small dense one reads as an object.
+   ------------------------------------------------------------- */
 .bloom{
   z-index:2;
-  opacity:0;
+  opacity:var(--bloom-opacity);      /* no-JS default; .js starts it at 0 */
   background:
-    radial-gradient(ellipse 58% 40% at 50% var(--bloom-y),
-      rgba(46,32,56,.95) 0%,
-      rgba(46,32,56,.62) 28%,
-      rgba(46,32,56,.28) 52%,
-      rgba(46,32,56,.08) 76%,
-      transparent var(--bloom-radius)),
-    radial-gradient(ellipse 90% 55% at 50% calc(var(--bloom-y) + 8%),
-      rgba(46,32,56,.55) 0%,
-      rgba(46,32,56,.18) 45%,
-      transparent 78%),
-    radial-gradient(ellipse 48% 24% at 50% 84%,
-      rgba(140,107,50,.40) 0%,
-      rgba(140,107,50,.14) 45%,
-      transparent 72%);
+    /* primary core */
+    radial-gradient(ellipse 78% 58% at 50% var(--bloom-y),
+      rgba(46,32,56,.78) 0%,
+      rgba(46,32,56,.59) calc(var(--bloom-radius) * .125),
+      rgba(46,32,56,.41) calc(var(--bloom-radius) * .25),
+      rgba(46,32,56,.27) calc(var(--bloom-radius) * .375),
+      rgba(46,32,56,.17) calc(var(--bloom-radius) * .5),
+      rgba(46,32,56,.093) calc(var(--bloom-radius) * .625),
+      rgba(46,32,56,.040) calc(var(--bloom-radius) * .75),
+      rgba(46,32,56,.010) calc(var(--bloom-radius) * .875),
+      rgba(46,32,56,0) var(--bloom-radius)),
+    /* wide skirt — breaks up the core's outline */
+    radial-gradient(ellipse 125% 82% at 50% calc(var(--bloom-y) + 8%),
+      rgba(46,32,56,.34) 0%,
+      rgba(46,32,56,.24) 18%,
+      rgba(46,32,56,.155) 34%,
+      rgba(46,32,56,.088) 50%,
+      rgba(46,32,56,.042) 66%,
+      rgba(46,32,56,.014) 82%,
+      rgba(46,32,56,0) 100%),
+    /* warm wash sitting just above the arc */
+    radial-gradient(ellipse 62% 30% at 50% 84%,
+      rgba(140,107,50,.34) 0%,
+      rgba(140,107,50,.235) 18%,
+      rgba(140,107,50,.15) 34%,
+      rgba(140,107,50,.085) 50%,
+      rgba(140,107,50,.040) 66%,
+      rgba(140,107,50,.013) 82%,
+      rgba(140,107,50,0) 100%);
+}
+
+/* --- ambient fade gate ---------------------------------------
+   The bloom, scrim and arc are pure CSS and paint instantly; the backdrop
+   plate is a network image. Fading them all on a fixed .15s timer meant the
+   violet field appeared over flat black for a beat while the plate was
+   still in flight — the section visibly flashed. Nothing ambient now shows
+   until the plate has decoded, so the whole atmosphere arrives as one
+   piece. The JS side hard-caps the wait, so a slow or missing image can
+   never leave the page black.
+
+   Default state (no JS) is simply visible. The .js class, set in <head>
+   before first paint, is what opts into starting hidden.
+   ------------------------------------------------------------- */
+.js .backdrop,
+.js .scrim,
+.js .bloom,
+.js .arc{ opacity:0; }
+
+.js.ambient-ready .backdrop{ animation:backdrop-in 1.4s var(--ease) forwards; }
+.js.ambient-ready .scrim,
+.js.ambient-ready .arc{ animation:ambient-in 1.4s var(--ease) forwards; }
+.js.ambient-ready .bloom{
   animation:
-    ambient-in 1.8s var(--ease) .15s forwards,
-    bloom-breathe 12s ease-in-out 2s infinite;
+    bloom-in 1.4s var(--ease) forwards,
+    bloom-breathe 12s ease-in-out 1.8s infinite;
 }
 
 /* --- z2 : cursor glow (atmosphere, not a spotlight) --------- */
@@ -301,8 +405,6 @@ body{
   border-radius:50%;
   background:var(--bg);
   transform:translateX(-50%);
-  opacity:0;
-  animation:ambient-in 1.8s var(--ease) .15s forwards;
 }
 .arc::before{
   content:"";
@@ -632,6 +734,12 @@ body{
   from{ opacity:0; }
   to  { opacity:var(--backdrop-opacity); }
 }
+/* The bloom settles at --bloom-opacity, NOT 1. Fading it to 1 and letting
+   bloom-breathe take over at 2s produced a visible step down mid-load. */
+@keyframes bloom-in{
+  from{ opacity:0; }
+  to  { opacity:var(--bloom-opacity); }
+}
 @keyframes bloom-breathe{
   0%,100%{ opacity:var(--bloom-opacity); transform:scale(1); }
   50%    { opacity:calc(var(--bloom-opacity) * .93); transform:scale(1.035); }
@@ -696,17 +804,22 @@ body{
    no cursor effects. Fully usable.
    ============================================================ */
 @media (prefers-reduced-motion:reduce){
-  .rise,
-  .scrim, .bloom, .arc{
+  .rise{
     animation:ambient-in .3s ease forwards !important;
     animation-delay:0s !important;
   }
-  .backdrop{
+  .js.ambient-ready .scrim,
+  .js.ambient-ready .arc{
+    animation:ambient-in .3s ease forwards !important;
+  }
+  .js.ambient-ready .backdrop{
     animation:backdrop-in .3s ease forwards !important;
-    animation-delay:0s !important;
+  }
+  /* no breathe loop here — just settle at the resting opacity */
+  .js.ambient-ready .bloom{
+    animation:bloom-in .3s ease forwards !important;
   }
   .arc::before{ animation:none !important; opacity:1; }
-  .bloom{ opacity:var(--bloom-opacity); }
   .star{ animation:none !important; opacity:var(--o); transition:none; }
   .cursor-glow{ display:none; }
   .field button{ transition:none; }
@@ -826,6 +939,9 @@ body{
   /* ==========================================================
      ENVIRONMENT
      ========================================================== */
+  // NOTE: the ambient gate (.js / .ambient-ready) runs from an inline script
+  // in <head>, not here — a stylesheet link blocks scripts that follow it.
+
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const finePointer  = window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   const isSmall      = window.matchMedia("(max-width: 640px)").matches;

@@ -315,11 +315,69 @@ satisfy the actual requirement — nothing twinkling over the gear.
 | Token | Default | What it does |
 |---|---|---|
 | `--bloom-y` | `62%` | Vertical centre of the haze. |
-| `--bloom-radius` | `70%` | Falloff distance of the primary gradient. |
+| `--bloom-radius` | `100%` | Outer edge of the core falloff. Inner stops derive from it as fractions, which is what keeps them monotonic. |
 | `--bloom-opacity` | `0.55` | Master opacity of the whole layer. |
 
 Held back from `0.85` because `hero-bg.png` already carries a purple haze of its
 own; stacking both at full strength turns to mush.
+
+**Don't set an inner stop past `--bloom-radius`.** CSS clamps an out-of-order
+gradient stop to its predecessor's position, which collapses the falloff into
+zero distance and produces a hard visible ring. That's why the inner stops are
+written as `calc(var(--bloom-radius) * .25)` and so on rather than as literals.
+
+Three rules keep this layer reading as haze rather than as a disc:
+
+1. **Every falloff ends at a zero-alpha stop of its own hue**, never at
+   `transparent`. `transparent` is `rgba(0,0,0,0)`, so interpolating toward it
+   drags the ramp through darker, desaturated values and rings the edge.
+2. **Nine stops on an eased curve** (alpha ≈ `(1-t)^2.2`) rather than four on a
+   straight ramp. Measured on an isolated render, this cut the longest flat
+   colour run from 17px to 10px.
+3. **Wide ellipses, low peaks, heavy overlap.** A big soft field reads as
+   atmosphere; a small dense one reads as an object.
+
+### A note on residual banding
+
+The bloom spans only about **24 distinct 8-bit levels** end to end — that's the
+whole dynamic range available when a low-opacity violet sits on a near-black
+ground. Some stepping is therefore inherent and no number of colour stops can
+remove it; the fixes above spread it out rather than eliminate it.
+
+The only true cure is dithering — a ~1.5% opacity noise overlay, which breaks the
+quantisation up below the threshold of visibility. That was deliberately *not*
+added, because the brief rules out grain and noise. If banding still bothers you
+on a particular display, that's the remaining lever, and it is different in kind
+from decorative grain: at that opacity it is invisible as texture and only serves
+to hide the steps.
+
+### Ambient load gate
+
+The bloom, scrim and arc are pure CSS and paint instantly; the backdrop plate is
+a network image. Fading them all on a fixed timer meant the violet field showed
+over flat black for a beat while the plate was still in flight, so the section
+flashed on first load.
+
+`.ambient-ready` now releases all four together, once the plate has decoded:
+
+- The gate script lives **inline in `<head>`, before the font `<link>`**. This
+  placement is load-bearing — a stylesheet blocks execution of every script that
+  follows it, and running the gate at the end of `<body>` made the whole
+  atmosphere wait on Google Fonts. Measured at **3s** on a throttled connection.
+- `<link rel="preload" as="image">` starts the plate fetch at parse time instead
+  of waiting for CSS to be parsed and the layer painted.
+- `decode()` is used rather than `onload`, because `onload` can fire while
+  decoding still costs a frame.
+- A **1200ms hard cap** fires the gate regardless, so a slow network, a 404, or a
+  browser without WebP support can never leave the page sitting black.
+- The CSS default is *visible*; only the `.js` class (set by that same inline
+  script) opts into starting hidden. Verified: with JavaScript disabled the page
+  renders identically to the normal path.
+
+The bloom also has its own `bloom-in` keyframe rather than sharing `ambient-in`.
+`ambient-in` ends at `opacity: 1`, but the bloom rests at `--bloom-opacity`
+(0.55), so it used to fade to full brightness and then visibly step down when
+`bloom-breathe` took over at the 2s mark.
 
 Three stacked radial gradients: a primary purple core, a wider dimmer skirt, and
 a warm gold wash just above the arc. The breathing loop drifts opacity and scale
